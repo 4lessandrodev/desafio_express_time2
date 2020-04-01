@@ -44,6 +44,8 @@ const homeController = {
     // guardando lista de inscritos com o novo email
     fs.writeFileSync(fileContato, listaContato);
 
+    console.log(fs);
+
     // -----
 
     res.render('contato', {nome, email, mensagem, title: 'Contato'});
