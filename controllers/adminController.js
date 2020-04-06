@@ -21,7 +21,7 @@ const adminController = {
   renderCadastro: (req, res) => {
     res.render('cadastroUsuario', { title: 'Cadastro', msg:null });
   },
-
+  
   renderLogin: (req, res) => {
     res.render('login', { title: 'Login', msg:null });
   },
@@ -54,20 +54,30 @@ const adminController = {
     // -----
     res.render('cadastroUsuario', { nome, email, senha, title: 'Cadastro', msg:'Cadastro realizado com sucesso!' });
   },
-
+  
   login: (req, res) => {
     let { senha, email } = req.body;
-
+    
     let usuarios = fs.readFileSync(caminhoUsuarios, { encoding: 'utf-8' });
     usuarios = JSON.parse(usuarios);
-
+    
     let usuarioEncontrado = usuarios.usuarios.filter((usuario) => {
       return usuario.email == email;
     });
+    
+    if (usuarioEncontrado[0]) {
+    
+      let comparacao = bcrypt.compareSync(senha, usuarioEncontrado[0].senhaCriptografada);
+    
+      if (comparacao) {
+        res.redirect('/admin');
+      } else {
+        res.render('login', { email, senha, title: 'Login', msg: 'Senha inválida' });
+      }
 
-    console.log(usuarioEncontrado);
-    let comparacao = bcrypt.compareSync(senha, usuarioEncontrado[0].senhaCriptografada);
-    console.log(comparacao);
+    } else {
+      res.render('login', { email, senha, title: 'Login', msg: 'Usuário não cadastrado' });
+    }
   }
   
   
