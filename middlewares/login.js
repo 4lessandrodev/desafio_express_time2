@@ -6,6 +6,4 @@ const logado = (req, res, next) =>{
         res.redirect('/admin/login');
     }
 };
-
-
 module.exports = {logado};
