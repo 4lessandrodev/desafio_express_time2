@@ -4,6 +4,7 @@ const caminhoInscritos = path.join('db','newsletter.json');
 const caminhoContatos = path.join('db', 'contato.json');
 const caminhoUsuarios = path.join('db', 'usuarios.json');
 const bcrypt = require('bcrypt');
+const middlewareSalvarUsuario = require("../middlewares/login");
 
 
 const adminController = {
@@ -55,7 +56,7 @@ const adminController = {
     res.render('cadastroUsuario', { nome, email, senha, title: 'Cadastro', msg:'Cadastro realizado com sucesso!' });
   },
   
-  login: (req, res) => {
+  login: (req, res, next) => {
     let { senha, email } = req.body;
     
     let usuarios = fs.readFileSync(caminhoUsuarios, { encoding: 'utf-8' });
@@ -70,6 +71,7 @@ const adminController = {
       let comparacao = bcrypt.compareSync(senha, usuarioEncontrado[0].senhaCriptografada);
     
       if (comparacao) {
+        middlewareSalvarUsuario.salvarUsuario(req, res, next, usuarioEncontrado[0]);
         res.redirect('/admin');
       } else {
         res.render('login', { email, senha, title: 'Login', msg: 'Senha inválida' });
