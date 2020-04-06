@@ -4,7 +4,7 @@ const caminhoInscritos = path.join('db','newsletter.json');
 const caminhoContatos = path.join('db', 'contato.json');
 const caminhoUsuarios = path.join('db', 'usuarios.json');
 const bcrypt = require('bcrypt');
-const middlewareSalvarUsuario = require("../middlewares/login");
+
 
 
 const adminController = {
@@ -14,7 +14,6 @@ const adminController = {
     let contatos = fs.readFileSync(caminhoContatos);
     inscritos = JSON.parse(inscritos, { encoding: 'utf-8'});
     contatos = JSON.parse(contatos, { encoding: 'utf-8'});
-    console.log(inscritos);
     res.render("admin", {title: "admin", inscritos: inscritos.inscritos, contatos: contatos.contatos});
   },
   
@@ -24,7 +23,7 @@ const adminController = {
   },
   
   renderLogin: (req, res) => {
-    res.render('login', { title: 'Login', msg:null });
+    (req.session.user == undefined)? res.render('login', { title: 'Login', msg: null }) : res.redirect('/admin');
   },
   
   
@@ -67,18 +66,24 @@ const adminController = {
     });
     
     if (usuarioEncontrado[0]) {
-    
+      
       let comparacao = bcrypt.compareSync(senha, usuarioEncontrado[0].senhaCriptografada);
-    
+      
       if (comparacao) {
+        req.session.user = usuarioEncontrado[0];
         res.redirect('/admin');
       } else {
         res.render('login', { email, senha, title: 'Login', msg: 'Senha inválida' });
       }
-
+      
     } else {
       res.render('login', { email, senha, title: 'Login', msg: 'Usuário não cadastrado' });
     }
+  },
+  
+  sair: (req, res, next) => {
+    req.session.user = undefined;
+    res.redirect('/admin/login');
   }
   
   
